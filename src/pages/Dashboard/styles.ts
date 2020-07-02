@@ -15,7 +15,6 @@ export const Title = styled.h1`
 export const Form = styled.form`
   display: flex;
   margin-top: 2.5rem;
-  max-width: ${maxWidth};
 `;
 
 interface SearchInputProps {
@@ -24,7 +23,6 @@ interface SearchInputProps {
 
 export const SearchInput = styled.input<SearchInputProps>`
   padding: 0.5rem;
-  /* border: 1px solid ${primaryColor}; */
   flex: 1;
   border-radius: 5px 0 0 5px;
   font-size: 1.2rem;
@@ -80,7 +78,6 @@ export const SearchButton = styled.button`
 `;
 
 export const Repositories = styled.div`
-  max-width: ${maxWidth};
   margin-top: 5rem;
 
   a {
@@ -135,7 +132,6 @@ export const Error = styled.div`
   background: #c53030;
   padding: 0.8rem;
   border-radius: 5px;
-  max-width: ${maxWidth};
   margin-top: 1rem;
   color: #fff;
   font-weight: 700;

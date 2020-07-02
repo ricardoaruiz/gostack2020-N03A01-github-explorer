@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
       <S.Form onSubmit={addNewRepository}>
         <S.SearchInput
           type="text"
-          placeholder="Digite o nome do repositório"
+          placeholder="informe o repositório: ricardoaruiz/gostack2020-N03A01-github-explorer"
           value={repository}
           hasError={!!error}
           onChange={handleRepositoryChange}
@@ -119,19 +119,6 @@ const Dashboard: React.FC = () => {
             </div>
             <FiChevronRight size={20} />
           </Link>
-          // <a
-          //   key={repo.full_name}
-          //   href="xx"
-          //   target="_blank"
-          //   rel="noopener noreferrer"
-          // >
-          //   <img src={repo.owner.avatar_url} alt={repo.owner.login} />
-          //   <div>
-          //     <strong>{repo.full_name}</strong>
-          //     <p>{repo.description}</p>
-          //   </div>
-          //   <FiChevronRight size={20} />
-          // </a>
         ))}
       </S.Repositories>
     </>

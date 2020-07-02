@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouteMatch, Link } from 'react-router-dom';
 import { FiChevronRight, FiChevronLeft } from 'react-icons/fi';
 
 import logo from '../../assets/logo.svg';
+import github from '../../services/api';
 
 import * as S from './styles';
+
+interface Repository {
+  full_name: string;
+  description: string;
+  forks_count: number;
+  open_issues_count: number;
+  stargazers_count: number;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
+interface Issue {
+  id: number;
+  title: string;
+  html_url: string;
+  user: {
+    login: string;
+  };
+}
 
 interface RepositoryParams {
   fullName: string;
@@ -12,6 +34,64 @@ interface RepositoryParams {
 
 const Repository: React.FC = () => {
   const { params } = useRouteMatch<RepositoryParams>();
+  const [error, setError] = useState('');
+  const [repository, setRepository] = useState<Repository | null>(null);
+  const [issues, setIssues] = useState<Issue[]>([]);
+
+  const populateRepository = (receivedRepo: Repository) => {
+    const {
+      full_name,
+      description,
+      forks_count,
+      open_issues_count,
+      stargazers_count,
+      owner: { login, avatar_url },
+    } = receivedRepo;
+
+    const repo = {
+      full_name,
+      description,
+      forks_count,
+      open_issues_count,
+      stargazers_count,
+      owner: {
+        login,
+        avatar_url,
+      },
+    };
+    setRepository(repo);
+  };
+
+  const populateIssues = (receivedIssues: Issue[]) => {
+    const listIssues = receivedIssues.map(issue => ({
+      id: issue.id,
+      title: issue.title,
+      html_url: issue.html_url,
+      user: {
+        login: issue.user.login,
+      },
+    }));
+    setIssues(listIssues);
+  };
+
+  useEffect(() => {
+    const { fullName } = params;
+
+    const repositoryDetails = github.get<Repository>(`/repos/${fullName}`);
+    const repositoryIssues = github.get<Issue[]>(`/repos/${fullName}/issues`);
+
+    Promise.all([repositoryDetails, repositoryIssues])
+      .then(response => {
+        populateRepository(response[0].data);
+        populateIssues(response[1].data);
+      })
+      .catch(() => {
+        setError('Repositório não encontrado');
+        setRepository(null);
+        setIssues([]);
+      });
+  }, [params]);
+
   return (
     <>
       <S.Header>
@@ -21,56 +101,54 @@ const Repository: React.FC = () => {
           Voltar
         </Link>
       </S.Header>
-      <S.RepositoryInfo>
-        <div className="main">
-          <img
-            src="https://avatars2.githubusercontent.com/u/8824363?s=400&u=1dab04b6df0098023ea8ac47c9946d606e6231d0&v=4"
-            alt="Repository owner"
-          />
-          <div>
-            <strong>ricardoaruiz/repo01</strong>
-            <p>Descrição do repo 01</p>
-          </div>
-        </div>
-        <ul>
-          <li>
-            <strong>1808</strong>
-            <span>Stard</span>
-          </li>
-          <li>
-            <strong>48</strong>
-            <span>Forks</span>
-          </li>
-          <li>
-            <strong>67</strong>
-            <span>Issues abertas</span>
-          </li>
-        </ul>
-      </S.RepositoryInfo>
 
-      <S.Issues>
-        <Link to="ddddd">
-          <div>
-            <strong>Title</strong>
-            <p>Owner</p>
-          </div>
-          <FiChevronRight size={20} />
-        </Link>
-        <Link to="ddddd">
-          <div>
-            <strong>Title</strong>
-            <p>Owner</p>
-          </div>
-          <FiChevronRight size={20} />
-        </Link>
-        <Link to="ddddd">
-          <div>
-            <strong>Title</strong>
-            <p>Owner</p>
-          </div>
-          <FiChevronRight size={20} />
-        </Link>
-      </S.Issues>
+      {repository && (
+        <>
+          <S.RepositoryInfo>
+            <div className="main">
+              <img
+                src={repository.owner.avatar_url}
+                alt={repository.owner.login}
+              />
+              <div>
+                <strong>{repository.full_name}</strong>
+                <p>{repository.description}</p>
+              </div>
+            </div>
+            <ul>
+              <li>
+                <strong>{repository.stargazers_count}</strong>
+                <span>Stars</span>
+              </li>
+              <li>
+                <strong>{repository.forks_count}</strong>
+                <span>Forks</span>
+              </li>
+              <li>
+                <strong>{repository.open_issues_count}</strong>
+                <span>Issues abertas</span>
+              </li>
+            </ul>
+          </S.RepositoryInfo>
+
+          <S.Issues>
+            {issues.map(issue => (
+              <a
+                key={issue.id}
+                href={issue.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div>
+                  <strong>{issue.title}</strong>
+                  <p>{issue.user.login}</p>
+                </div>
+                <FiChevronRight size={20} />
+              </a>
+            ))}
+          </S.Issues>
+        </>
+      )}
     </>
   );
 };
