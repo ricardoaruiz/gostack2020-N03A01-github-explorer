@@ -72,6 +72,11 @@ export const SearchButton = styled.button`
       cursor: not-allowed;
     }
   }
+
+  &.error {
+    border: 1px solid #c53030;
+    border-left: none;
+  }
 `;
 
 export const Repositories = styled.div`

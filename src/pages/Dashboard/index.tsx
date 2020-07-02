@@ -75,7 +75,11 @@ const Dashboard: React.FC = () => {
           hasError={!!error}
           onChange={handleRepositoryChange}
         />
-        <S.SearchButton type="submit" disabled={!repository}>
+        <S.SearchButton
+          type="submit"
+          disabled={!repository}
+          className={error && 'error'}
+        >
           Pesquisar
         </S.SearchButton>
       </S.Form>
