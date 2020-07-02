@@ -6,6 +6,8 @@ import github from '../../services/api';
 
 import * as S from './styles';
 
+const repositoriesLocalStorageKey = '@GithubExplorer:repositories';
+
 interface Repository {
   full_name: string;
   description: string;
@@ -19,13 +21,28 @@ interface Repository {
 const Dashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [repository, setRepository] = useState('');
-  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [repositories, setRepositories] = useState<Repository[]>(() => {
+    const cachedRepositories = localStorage.getItem(
+      repositoriesLocalStorageKey,
+    );
+    if (cachedRepositories) {
+      return JSON.parse(cachedRepositories);
+    }
+    return [];
+  });
 
   useEffect(() => {
     if (!repository) {
       setError('');
     }
   }, [repository]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      repositoriesLocalStorageKey,
+      JSON.stringify(repositories),
+    );
+  }, [repositories]);
 
   const handleRepositoryChange = (
     event: React.ChangeEvent<HTMLInputElement>,
