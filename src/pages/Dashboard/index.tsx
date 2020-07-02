@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiChevronRight, FiXOctagon } from 'react-icons/fi';
 
 import logo from '../../assets/logo.svg';
@@ -110,19 +111,27 @@ const Dashboard: React.FC = () => {
 
       <S.Repositories>
         {repositories.map(repo => (
-          <a
-            key={repo.full_name}
-            href={repo.html_url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <Link to={`repository/${repo.full_name}`} key={repo.full_name}>
             <img src={repo.owner.avatar_url} alt={repo.owner.login} />
             <div>
               <strong>{repo.full_name}</strong>
               <p>{repo.description}</p>
             </div>
             <FiChevronRight size={20} />
-          </a>
+          </Link>
+          // <a
+          //   key={repo.full_name}
+          //   href="xx"
+          //   target="_blank"
+          //   rel="noopener noreferrer"
+          // >
+          //   <img src={repo.owner.avatar_url} alt={repo.owner.login} />
+          //   <div>
+          //     <strong>{repo.full_name}</strong>
+          //     <p>{repo.description}</p>
+          //   </div>
+          //   <FiChevronRight size={20} />
+          // </a>
         ))}
       </S.Repositories>
     </>
