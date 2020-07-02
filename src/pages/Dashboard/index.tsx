@@ -1,67 +1,86 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 
 import logo from '../../assets/logo.svg';
+import github from '../../services/api';
 
 import * as S from './styles';
 
+interface Repository {
+  full_name: string;
+  description: string;
+  html_url: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
 const Dashboard: React.FC = () => {
+  const [repository, setRepository] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  const handleRepositoryChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setRepository(event.target.value);
+  };
+
+  const addNewRepository = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    github
+      .get<Repository>(`/repos/${repository}`)
+      .then(response => {
+        const { data } = response;
+        const repo = {
+          full_name: data.full_name,
+          description: data.description,
+          html_url: data.html_url,
+          owner: {
+            login: data.owner.login,
+            avatar_url: data.owner.avatar_url,
+          },
+        };
+        setRepositories([...repositories, repo]);
+        setRepository('');
+      })
+      .catch(error => console.error(error));
+  };
+
   return (
     <>
       <img src={logo} alt="Github Explorer" />
       <S.Title>Explore repositórios no Github</S.Title>
 
-      <S.Form>
-        <S.SearchInput type="text" placeholder="Digite o nome do repositório" />
-        <S.SearchButton type="submit">Pesquisar</S.SearchButton>
+      <S.Form onSubmit={addNewRepository}>
+        <S.SearchInput
+          type="text"
+          placeholder="Digite o nome do repositório"
+          value={repository}
+          onChange={handleRepositoryChange}
+        />
+        <S.SearchButton type="submit" disabled={!repository}>
+          Pesquisar
+        </S.SearchButton>
       </S.Form>
 
       <S.Repositories>
-        <a
-          href="https://github.com/ricardoaruiz/gostack2020-N03A01-github-explorer"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://avatars2.githubusercontent.com/u/8824363?s=400&u=1dab04b6df0098023ea8ac47c9946d606e6231d0&v=4"
-            alt="Repository Owner"
-          />
-          <div>
-            <strong>ricardoaruiz/repoteste</strong>
-            <p>Repositório para testes de aplicações...</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a
-          href="https://github.com/ricardoaruiz/gostack2020-N03A01-github-explorer"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://avatars2.githubusercontent.com/u/8824363?s=400&u=1dab04b6df0098023ea8ac47c9946d606e6231d0&v=4"
-            alt="Repository Owner"
-          />
-          <div>
-            <strong>ricardoaruiz/repoteste</strong>
-            <p>Repositório para testes de aplicações...</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
-        <a
-          href="https://github.com/ricardoaruiz/gostack2020-N03A01-github-explorer"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://avatars2.githubusercontent.com/u/8824363?s=400&u=1dab04b6df0098023ea8ac47c9946d606e6231d0&v=4"
-            alt="Repository Owner"
-          />
-          <div>
-            <strong>ricardoaruiz/repoteste</strong>
-            <p>Repositório para testes de aplicações...</p>
-          </div>
-          <FiChevronRight size={20} />
-        </a>
+        {repositories.map(repo => (
+          <a
+            key={repo.full_name}
+            href={repo.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={repo.owner.avatar_url} alt={repo.owner.login} />
+            <div>
+              <strong>{repo.full_name}</strong>
+              <p>{repo.description}</p>
+            </div>
+            <FiChevronRight size={20} />
+          </a>
+        ))}
       </S.Repositories>
     </>
   );

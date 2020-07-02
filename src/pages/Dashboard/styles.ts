@@ -48,6 +48,14 @@ export const SearchButton = styled.button`
   &:active {
     background: ${darken(0.2, primaryColor)};
   }
+  &:disabled {
+    opacity: 0.5;
+    &:hover,
+    &:active {
+      background: ${primaryColor};
+      cursor: not-allowed;
+    }
+  }
 `;
 
 export const Repositories = styled.div`
@@ -78,6 +86,7 @@ export const Repositories = styled.div`
       border-radius: 50%;
     }
     div {
+      flex: 1;
       margin-left: 2rem;
 
       strong {
