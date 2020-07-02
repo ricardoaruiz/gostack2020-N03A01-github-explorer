@@ -1,7 +1,8 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { darken } from 'polished';
 
 const primaryColor = '#04d361';
+const maxWidth = '44rem';
 
 export const Title = styled.h1`
   font-size: 3rem;
@@ -14,17 +15,32 @@ export const Title = styled.h1`
 export const Form = styled.form`
   display: flex;
   margin-top: 2.5rem;
-  max-width: 44rem;
+  max-width: ${maxWidth};
 `;
 
-export const SearchInput = styled.input`
+interface SearchInputProps {
+  hasError: boolean;
+}
+
+export const SearchInput = styled.input<SearchInputProps>`
   padding: 0.5rem;
-  border: 1px solid ${primaryColor};
+  /* border: 1px solid ${primaryColor}; */
   flex: 1;
   border-radius: 5px 0 0 5px;
   font-size: 1.2rem;
   color: #333;
   height: 4rem;
+
+  ${props =>
+    props.hasError
+      ? css`
+          border: 1px solid #c53030;
+          border-right: none;
+        `
+      : css`
+        border: 1px solid ${primaryColor}}
+        border-right: none;
+      `}
 
   &::placeholder {
     color: #a8a8b3;
@@ -59,7 +75,7 @@ export const SearchButton = styled.button`
 `;
 
 export const Repositories = styled.div`
-  max-width: 44rem;
+  max-width: ${maxWidth};
   margin-top: 5rem;
 
   a {
@@ -105,5 +121,21 @@ export const Repositories = styled.div`
       margin-left: auto;
       color: #cbcbd6;
     }
+  }
+`;
+
+export const Error = styled.div`
+  display: flex;
+  align-items: center;
+  background: #c53030;
+  padding: 0.8rem;
+  border-radius: 5px;
+  max-width: ${maxWidth};
+  margin-top: 1rem;
+  color: #fff;
+  font-weight: 700;
+
+  svg {
+    margin-right: 1rem;
   }
 `;

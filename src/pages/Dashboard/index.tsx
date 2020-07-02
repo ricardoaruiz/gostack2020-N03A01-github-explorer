@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiChevronRight } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiChevronRight, FiXOctagon } from 'react-icons/fi';
 
 import logo from '../../assets/logo.svg';
 import github from '../../services/api';
@@ -17,8 +17,15 @@ interface Repository {
 }
 
 const Dashboard: React.FC = () => {
+  const [error, setError] = useState('');
   const [repository, setRepository] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  useEffect(() => {
+    if (!repository) {
+      setError('');
+    }
+  }, [repository]);
 
   const handleRepositoryChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -32,20 +39,27 @@ const Dashboard: React.FC = () => {
     github
       .get<Repository>(`/repos/${repository}`)
       .then(response => {
-        const { data } = response;
+        const {
+          full_name,
+          description,
+          html_url,
+          owner: { login, avatar_url },
+        } = response.data;
+
         const repo = {
-          full_name: data.full_name,
-          description: data.description,
-          html_url: data.html_url,
+          full_name,
+          description,
+          html_url,
           owner: {
-            login: data.owner.login,
-            avatar_url: data.owner.avatar_url,
+            login,
+            avatar_url,
           },
         };
         setRepositories([...repositories, repo]);
         setRepository('');
+        setError('');
       })
-      .catch(error => console.error(error));
+      .catch(() => setError('Repositório informado não encontrado.'));
   };
 
   return (
@@ -58,12 +72,20 @@ const Dashboard: React.FC = () => {
           type="text"
           placeholder="Digite o nome do repositório"
           value={repository}
+          hasError={!!error}
           onChange={handleRepositoryChange}
         />
         <S.SearchButton type="submit" disabled={!repository}>
           Pesquisar
         </S.SearchButton>
       </S.Form>
+
+      {error && (
+        <S.Error>
+          <FiXOctagon size={30} />
+          <p>{error}</p>
+        </S.Error>
+      )}
 
       <S.Repositories>
         {repositories.map(repo => (
